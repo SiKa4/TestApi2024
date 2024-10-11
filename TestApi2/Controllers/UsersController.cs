@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TestApi2.DataBaseContext;
+using TestApi2.Interfaces;
 using TestApi2.Model;
 using TestApi2.Requests;
 
@@ -11,50 +12,25 @@ namespace TestApi2.Controllers
     [Route("api/[controller]")]
     public class UsersController : Controller
     {
-        readonly TestApiDB _context;
+        private readonly IUserService _userService;
 
-        public UsersController(TestApiDB context) 
+        public UsersController(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         [HttpGet]
         [Route("getAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _context.Logins.Where(a => a.id_Login == 1).Include(a => a.Users).ToListAsync();
-             
-            return new OkObjectResult(new
-            {
-                users = users,
-                status = true
-            });
+            return await _userService.GetAllUsersAsync();
         }
 
         [HttpPost]
         [Route("createNewUserAndLogin")]
         public async Task<IActionResult> CreateNewUserAndLogin(CreateNewUserAndLogin newUser)
         {
-            var user = new Users()
-            {
-                Name = newUser.Name,
-                Description = newUser.Description,
-            };
-
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
-
-            var login = new Logins()
-            {
-                User_id = user.id_User,
-                Login = newUser.Login,
-                Password = newUser.Password,
-            };
-
-            await _context.Logins.AddAsync(login);
-            await _context.SaveChangesAsync();
-
-            return Ok();
+            return await _userService.CreateNewUserAndLoginAsync(newUser);
         }
     }
 }

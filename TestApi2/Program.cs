@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using TestApi2;
 using TestApi2.DataBaseContext;
+using TestApi2.Interfaces;
+using TestApi2.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<TestApiDB>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TestDbString")), ServiceLifetime.Scoped);
+
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
